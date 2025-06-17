@@ -22,7 +22,7 @@ cbf	"Compare Big File", computes a md5sum of N initial lines (default is
 	MUST be passed with -g option
 
 sampler	Used to generate smaller versions from large fasta/fastq files for
-	pipeline testing
+	pipeline testing. [under construction, can't be invoked yet]
 
 sfa	"Split FASTA", splits a multi header fasta into separate files. Might
 	be useful for disassembling genomes into chromosomes. Use -g for
