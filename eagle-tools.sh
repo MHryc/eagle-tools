@@ -140,7 +140,7 @@ usage: eagle-tools.sh eln [-p PATH] [-n NAME] FILE
 -n	Name of the link, default is the executable name
 EOF
 	}
-	DEFAULT_PATH="~/pl0217-01/project_data/4_MHryc/software/bin/"
+	DEFAULT_PATH="$HOME/pl0217-01/project_data/4_MHryc/software/bin/"
 	path=$DEFAULT_PATH
 
 	while getopts 'p:n:h' opt; do
