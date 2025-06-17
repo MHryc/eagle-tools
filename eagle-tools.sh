@@ -20,6 +20,13 @@ pinfo	Get information about available partitions (name, nodes, cpus,
 cbf	"Compare Big File", computes a md5sum of N initial lines (default is
 	1000, can be specified by -s N). Run with -h for help. Gzipped files
 	MUST be passed with -g option
+
+sampler	Used to generate smaller versions from large fasta/fastq files for
+	pipeline testing
+
+sfa	"Split FASTA", splits a multi header fasta into separate files. Might
+	be useful for disassembling genomes into chromosomes. Use -g for
+	gzipped files
 EOF
 }
 
@@ -64,6 +71,9 @@ EOF
 		esac
 	done
 
+	# handle 0 arguments scenario
+	[[ ! $opt_provided ]] && exit 1
+
 	shift $((OPTIND - 1)); name=$(basename $1)
 
 	[[ g_zip -eq 1 ]] && \
@@ -72,6 +82,52 @@ EOF
 		|| \
 		md5sum <(head -n $size $1) | \
 		awk -v name=$name '{printf("%s\t%s\n", $1, name)}'
+}
+sampler() {
+	#
+	# Sample reads from fasta/fastq
+	# prints md5sum of head -n N lines from files. Used to get an idea if
+	# two or more files are likely identical
+	#
+	sampler_help() {
+cat << EOF
+usage: eagle-tools.sh sampler [-s SIZE] [-g] ...
+
+-s	Size (number of lines) that are coppied. Default is 1000.
+
+-g	Use for gzipped files to feed the text content into md5sum.
+EOF
+	}
+
+	size=1000; g_zip=0
+
+	while getopts 's:gh' opt; do
+		case $opt in
+			s) size=${OPTARG} ;;
+			g) g_zip=1 ;;
+			h) sampler_help >&2; exit 0 ;;
+			*) echo 'Something is not right...' >&2; exit 1 ;;
+		esac
+	done
+}
+
+sfa() {
+	#
+	# Splits a multi header fasta into separate files.
+	#
+	g_zip=0
+	while getopts 'g' opt; do
+		case $opt in
+			g) g_zip=1 ;;
+			*) echo 'Something is not right...' >&2; exit 1 ;;
+		esac
+	done
+
+	shift $((OPTIND - 1))
+
+	[[ $g_zip -eq 1 ]] && \
+		csplit -f chr <(zcat $1) '/^>/' '{*}' || \
+		csplit -f chr $1 '/^>/' '{*}'
 }
 
 #
@@ -84,6 +140,8 @@ case $subcmd in
 	pinfo) shift; pinfo ;;
 
 	cbf) shift; cbf $@ ;;
+
+	sfa) shift; sfa $@ ;;
 
 	*) help >&2; exit 1 ;;
 esac
