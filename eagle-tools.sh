@@ -27,6 +27,8 @@ sampler	Used to generate smaller versions from large fasta/fastq files for
 sfa	"Split FASTA", splits a multi header fasta into separate files. Might
 	be useful for disassembling genomes into chromosomes. Use -g for
 	gzipped files
+
+eln	"Executable ln", creates a link to specified file in my \$PATH
 EOF
 }
 
@@ -51,7 +53,7 @@ cbf() {
 	#
 	cbf_help() {
 cat << EOF
-usage: eagle-tools.sh cbf [-s SIZE] [-g] ...
+usage: eagle-tools.sh cbf [-s SIZE] [-g] FILE
 
 -s	Size (number of lines) that are fed into md5sum. Default is
 	1000.
@@ -72,7 +74,7 @@ EOF
 	done
 
 	# handle 0 arguments scenario
-	[[ ! $opt_provided ]] && exit 1
+	[[ ! $opt_provided ]] && cbf_help; exit 1
 
 	shift $((OPTIND - 1)); name=$(basename $1)
 
@@ -91,7 +93,7 @@ sampler() {
 	#
 	sampler_help() {
 cat << EOF
-usage: eagle-tools.sh sampler [-s SIZE] [-g] ...
+usage: eagle-tools.sh sampler [-s SIZE] [-g] FILE
 
 -s	Size (number of lines) that are coppied. Default is 1000.
 
@@ -110,7 +112,6 @@ EOF
 		esac
 	done
 }
-
 sfa() {
 	#
 	# Splits a multi header fasta into separate files.
@@ -129,6 +130,39 @@ sfa() {
 		csplit -f chr <(zcat $1) '/^>/' '{*}' || \
 		csplit -f chr $1 '/^>/' '{*}'
 }
+eln() {
+	eln_help() {
+cat << EOF
+usage: eagle-tools.sh eln [-p PATH] [-n NAME] FILE
+
+-p	Symlink destination, default is set in DEFAULT_PATH variable.
+
+-n	Name of the link, default is the executable name
+EOF
+	}
+	DEFAULT_PATH="~/pl0217-01/project_data/4_MHryc/software/bin/"
+	path=$DEFAULT_PATH
+
+	while getopts 'p:n:h' opt; do
+		case $opt in
+			p) path=${OPTARG} ;;
+			n) name=${OPTARG} ;;
+			h) eln_help; exit 0 ;;
+			*) echo 'Something is not right...' >&2; exit 1 ;;
+		esac
+	done
+
+	# exit if no arguments provided
+	[[ ! $opt_provided ]] && eln_help; exit 1
+
+	shift $((OPTIND - 1))
+
+	# add x permission just in case
+	chmod +x $1
+	[[ -z $name ]] && \
+		ln -s $(pwd)/$1 ${path}$1 || \
+		ln -s $(pwd)/$1 ${path}${name}
+}
 
 #
 # === Evaluate subcommands ===
@@ -142,6 +176,8 @@ case $subcmd in
 	cbf) shift; cbf $@ ;;
 
 	sfa) shift; sfa $@ ;;
+
+	eln) shift; eln $@ ;;
 
 	*) help >&2; exit 1 ;;
 esac
