@@ -20,4 +20,6 @@ sampler Used to generate smaller versions from large fasta/fastq files for
 sfa     "Split FASTA", splits a multi header fasta into separate files. Might
         be useful for disassembling genomes into chromosomes. Use -g for
         gzipped files
+
+eln     "Executable ln", creates a link to specified file in my $PATH
 ```
