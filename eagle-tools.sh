@@ -153,7 +153,7 @@ EOF
 	done
 
 	# exit if no arguments provided
-	[[ ! $opt_provided ]] && eln_help; exit 1
+	#[[ ! $opt_provided ]] && eln_help; exit 1
 
 	shift $((OPTIND - 1))
 
