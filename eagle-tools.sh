@@ -11,24 +11,28 @@ set -e
 
 help() {
 cat << EOF
-usage: eagle-tools.sh [-h] {pinfo,cbf} ...
+usage: eagle-tools.sh [-h] SUBCOMMAND ...
 
 Subcommands:
-pinfo	Get information about available partitions (name, nodes, cpus,
-	memory/node). Takes no arguments.
+pinfo		Get information about available partitions (name, nodes, cpus,
+		memory/node). Takes no arguments.
 
-cbf	"Compare Big File", computes a md5sum of N initial lines (default is
-	1000, can be specified by -s N). Run with -h for help. Gzipped files
-	MUST be passed with -g option
+cbf		"Compare Big File", computes a md5sum of N initial lines
+		(default is 1000, can be specified by -s N). Run with -h for
+		help. Gzipped files MUST be passed with -g option
 
-sampler	Used to generate smaller versions from large fasta/fastq files for
-	pipeline testing. [under construction, can't be invoked yet]
+sampler		Used to generate smaller versions from large fasta/fastq files
+		for pipeline testing. [under construction, can't be invoked yet]
 
-sfa	"Split FASTA", splits a multi header fasta into separate files. Might
-	be useful for disassembling genomes into chromosomes. Use -g for
-	gzipped files
+sfa		"Split FASTA", splits a multi header fasta into separate files.
+		Might be useful for disassembling genomes into chromosomes. Use
+		-g for gzipped files
 
-eln	"Executable ln", creates a link to specified file in my \$PATH
+eln		"Executable ln", creates a link to specified file in my \$PATH
+
+ttmd		"table to Markdown", takes a table with arbitrary separator
+		(specified by -s if other than whitespace) and outputs a
+		Markdown formated table. First row is treated as header.
 EOF
 }
 
@@ -163,6 +167,35 @@ EOF
 		ln -s $(pwd)/$1 ${path}$1 || \
 		ln -s $(pwd)/$1 ${path}${name}
 }
+ttmd() {
+	SEP='\t'
+	while getopts 's:' opt; do
+		case $opt in
+			s) SEP="$OPTARG" ;;
+			*) echo 'Something is not right...' >&2; exit 1 ;;
+		esac
+	done
+
+	shift $((OPTIND - 1))
+
+	awk -F "${SEP}" -v SEP="${SEP}" '
+	function format() {
+		split($0, arr, SEP, seps); 
+		for (i = 1; i <= NF; i++) {
+			printf("| %s ", arr[i])
+		}
+		printf("|\n")
+	};
+	function make_line() {
+		for (i = 1; i <= NF; i++) {
+			printf("%s", "| --- ")
+		}
+		printf("%s", "|\n")
+	}; FNR == 1 {
+		format();
+		make_line()
+	}; FNR != 1 {format()}' $1
+}
 
 #
 # === Evaluate subcommands ===
@@ -178,6 +211,8 @@ case $subcmd in
 	sfa) shift; sfa $@ ;;
 
 	eln) shift; eln $@ ;;
+
+	ttmd) shift; ttmd $@ ;;
 
 	*) help >&2; exit 1 ;;
 esac
