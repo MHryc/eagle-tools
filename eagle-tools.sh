@@ -6,6 +6,14 @@
 set -e
 
 #
+# === Parsing config ===
+#
+
+# I need to think about this...
+#CFG_PATH="$(awk -F ' = ' '$1 == "executable_path" {print $2}' config)"
+CFG_PATH=/home/maciej/.local/bin/
+
+#
 # === Help/usage ===
 #
 
@@ -144,8 +152,7 @@ usage: eagle-tools.sh eln [-p PATH] [-n NAME] FILE
 -n	Name of the link, default is the executable name
 EOF
 	}
-	DEFAULT_PATH="$HOME/pl0217-01/project_data/4_MHryc/software/bin/"
-	path=$DEFAULT_PATH
+	path=$CFG_PATH
 
 	while getopts 'p:n:h' opt; do
 		case $opt in
@@ -156,16 +163,21 @@ EOF
 		esac
 	done
 
-	# exit if no arguments provided
-	#[[ ! $opt_provided ]] && eln_help; exit 1
-
 	shift $((OPTIND - 1))
+
+	[[ -z $@ ]] && echo "No files provided" && exit 1
+
+	# exit if already linked to $PATH
+	[[ -h ${path}$1 ]] || [[ -h ${path}${name} ]] && \
+		echo "Link already exists in \$PATH ${path}, skipping" && exit 0
 
 	# add x permission just in case
 	chmod +x $1
 	[[ -z $name ]] && \
 		ln -s $(pwd)/$1 ${path}$1 || \
 		ln -s $(pwd)/$1 ${path}${name}
+
+	echo "linked $1 to ${path}"
 }
 ttmd() {
 	SEP='\t'
