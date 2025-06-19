@@ -182,10 +182,19 @@ EOF
 	echo "linked $1 to ${path}"
 }
 ttmd() {
+	ttmd_help() {
+cat << EOF
+usage: eagle-tools.sh ttmd [-s SEPARATOR] FILE
+
+-s	Separator used in the input FILE. Can be anything, most common would be
+	'\t', ';', ','
+EOF
+	}
 	SEP='\t'
-	while getopts 's:' opt; do
+	while getopts 's:h' opt; do
 		case $opt in
 			s) SEP="$OPTARG" ;;
+			h) ttmd_help; exit 0 ;;
 			*) echo 'Something is not right...' >&2; exit 1 ;;
 		esac
 	done
