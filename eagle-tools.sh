@@ -4,6 +4,7 @@
 # accessible by subcommande like 'pinfo'
 
 set -e
+set -o pipefail
 
 #
 # === Parsing config ===
@@ -54,7 +55,8 @@ pinfo() {
 	# Print info about accessible partitions as a nice table
 	#
 	sinfo -o "%P %D %c %m" | \
-		awk '{printf("%-16s\t%5s\t%10s\t%12s\n", $1, $2, $3, $4)}'
+		awk '{printf("%-16s\t%5s\t%10s\t%12s\n", $1, $2, $3, $4)}' || \
+		echo "It seems you are not working on a SLURM HPC"
 }
 
 cbf() {
