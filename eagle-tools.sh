@@ -225,10 +225,15 @@ sin() {
 	#
 	# Create shell script scaffold
 	#
+
+	# don't destroy files and exit
 	fail() {
 		echo $1 exists, exiting
 		exit 1
 	}
+
+	# exit if no args (filename) were given
+	[[ $# -eq 0 ]] && echo 'No filename given, exiting' && exit 1
 
 	[[ -e $1 ]] || \
 		echo '#!/usr/bin/env bash' > $1 && \
