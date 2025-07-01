@@ -42,6 +42,9 @@ eln		"Executable ln", creates a link to specified file in my \$PATH
 ttmd		"table to Markdown", takes a table with arbitrary separator
 		(specified by -s if other than whitespace) and outputs a
 		Markdown formated table. First row is treated as header.
+
+sin		"Script Init", creates a script with the name provided as 1st
+		argument, and fills it with necessary boring boilerplate
 EOF
 }
 
@@ -222,8 +225,14 @@ sin() {
 	#
 	# Create shell script scaffold
 	#
+	fail() {
+		echo $1 exists, exiting
+		exit 1
+	}
 
-	echo '#!/usr/bin/env bash' > $1
+	[[ -e $1 ]] || \
+		echo '#!/usr/bin/env bash' > $1 && \
+		fail $1
 }
 
 #
