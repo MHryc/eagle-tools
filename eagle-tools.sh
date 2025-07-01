@@ -238,7 +238,7 @@ sin() {
 #	[[ -e $1 ]] && \
 #		echo '#!/usr/bin/env bash' > $1 || \
 #		fail $1
-	if [[ -e $1 ]]; then
+	if [[ ! -e $1 ]]; then
 		echo '#!/usr/bin/env bash' > $1
 	else
 		fail $1
