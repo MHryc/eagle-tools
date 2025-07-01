@@ -58,7 +58,6 @@ pinfo() {
 		awk '{printf("%-16s\t%5s\t%10s\t%12s\n", $1, $2, $3, $4)}' || \
 		echo "It seems you are not working on a SLURM HPC"
 }
-
 cbf() {
 	#
 	# Compare Big File
@@ -219,6 +218,13 @@ EOF
 		make_line()
 	}; FNR != 1 {format()}' $1
 }
+sin() {
+	#
+	# Create shell script scaffold
+	#
+
+	echo '#!/usr/bin/env bash' > $1
+}
 
 #
 # === Evaluate subcommands ===
@@ -236,6 +242,8 @@ case $subcmd in
 	eln) shift; eln $@ ;;
 
 	ttmd) shift; ttmd $@ ;;
+
+	sin) shift; sin $@ ;;
 
 	*) help >&2; exit 1 ;;
 esac
