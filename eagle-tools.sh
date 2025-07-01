@@ -235,8 +235,8 @@ sin() {
 	# exit if no args (filename) were given
 	[[ $# -eq 0 ]] && echo 'No filename given, exiting' && exit 1
 
-	[[ -e $1 ]] || \
-		echo '#!/usr/bin/env bash' > $1 && \
+	[[ -e $1 ]] && \
+		echo '#!/usr/bin/env bash' > $1 || \
 		fail $1
 }
 
